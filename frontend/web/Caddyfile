@@ -1,0 +1,9 @@
+localhost {
+    tls /etc/caddy/ssl/cert.pem /etc/caddy/ssl/key.pem
+
+	root * /var/www/html/
+	file_server
+
+    try_files {path} {path}/ index.html
+	
+}
