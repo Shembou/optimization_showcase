@@ -1,7 +1,7 @@
 use actix_web::{App, HttpServer};
 
 use crate::{
-    api::home::{healthcheck, hello},
+    api::{common::healthcheck, home::hello},
     utils::certs::get_certs,
 };
 pub async fn configure_server() -> std::io::Result<()> {

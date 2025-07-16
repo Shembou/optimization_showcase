@@ -24,7 +24,7 @@ dependencies = [
  "wasm-bindgen",
 ]
 
-[[package]]
+[[package]]>
 name = "log"
 version = "0.4.27"
 source = "registry+https://github.com/rust-lang/crates.io-index"
