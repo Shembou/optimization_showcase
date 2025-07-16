@@ -1,0 +1,21 @@
+2025-07-16 17:07:56  INFO http2_api::config::server_config: Serving application at port :3000
+2025-07-16 17:07:56  INFO http2_api::config::server_config: Adding swagger api documentation at 127.0.0.1:3000/swagger-ui
+2025-07-16 17:10:50  INFO http2_api::config::server_config: Serving application at port :3000
+2025-07-16 17:10:50  INFO http2_api::config::server_config: Adding swagger api documentation at 127.0.0.1:3000/swagger-ui
+2025-07-16 17:12:20  INFO http2_api::config::server_config: Serving application at port :3000
+2025-07-16 17:12:20  INFO http2_api::config::server_config: Adding swagger api documentation at https://127.0.0.1:3000/swagger-ui
+2025-07-16 17:40:04  INFO http2_api::config::server_config: Serving application at port :3000
+2025-07-16 17:40:04  INFO http2_api::config::server_config: Adding swagger api documentation at https://127.0.0.1:3000/swagger-ui
+2025-07-16 17:47:47  INFO http2_api::config::server_config: Serving application at port :3000
+2025-07-16 17:47:47  INFO http2_api::config::server_config: Adding swagger api documentation at https://127.0.0.1:3000/swagger-ui
+2025-07-16 17:47:58  INFO http2_api::api::v1::home: Serving GET at route /v1/
+2025-07-16 17:48:06  INFO http2_api::api::v1::home: Serving GET at route /v1/
+2025-07-16 17:48:20  INFO http2_api::api::v1::home: Serving GET with query param: id:1 at route /v1/
+2025-07-16 17:48:23  INFO http2_api::api::v1::home: Serving GET with query param: id:1 at route /v1/
+2025-07-16 17:49:47  INFO http2_api::api::v1::home: Serving GET at route /v1/
+2025-07-16 17:49:58  INFO http2_api::api::v1::home: Serving GET at route /v1/
+2025-07-16 17:51:03  INFO http2_api::api::v1::home: Serving GET at route /v1/
+2025-07-16 17:51:16  INFO http2_api::api::v1::home: Serving GET at route /v1/
+2025-07-16 17:52:39  INFO http2_api::config::server_config: Serving application at port :3000
+2025-07-16 17:52:39  INFO http2_api::config::server_config: Adding swagger api documentation at https://127.0.0.1:3000/swagger-ui
+2025-07-16 17:53:01  INFO http2_api::api::v1::home: Serving GET with query param: id:123 at route /v1/
