@@ -10,7 +10,9 @@ chrono = "0.4.41"
 dotenv-vault = "0.1.2"
 rustls = "0.23.29"
 rustls-pemfile = "2.2.0"
+serde_json = "1.0.140"
 tokio = { version = "1.46.1", features = ["full"] }
+tower-http = { version = "0.6.6", features = ["cors"] }
 tracing = "0.1.41"
 tracing-appender = "0.2.3"
 tracing-subscriber = { version = "0.3.19", features = ["fmt", "env-filter", "chrono"] }

@@ -1,0 +1,23 @@
+services:
+  api:
+    build:
+      context: ./backend/http2_api
+    container_name: api
+    ports:
+      - "3000:3000"
+    networks:
+      - base-network
+  web:
+    build:
+      context: ./frontend/web
+    ports:
+      - "443:443"
+    depends_on:
+      - "api"
+    networks:
+      - base-network
+    container_name: web
+
+networks:
+  base-network:
+    driver: bridge

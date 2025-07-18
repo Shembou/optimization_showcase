@@ -1,0 +1,27 @@
+
+FROM rust:latest AS builder
+
+WORKDIR /usr/src/app
+
+COPY Cargo.toml Cargo.lock ./
+COPY certs ./certs
+RUN mkdir src && echo "fn main() {}" > src/main.rs
+RUN cargo build --release
+RUN rm -r src
+
+COPY . .
+RUN cargo build --release
+
+FROM debian:bookworm-slim AS runtime
+
+WORKDIR /app
+
+COPY --from=builder /usr/src/app/target/release/http2_api .
+
+COPY --from=builder /usr/src/app/certs ./certs
+
+RUN apt-get update && apt-get install -y ca-certificates && rm -rf /var/lib/apt/lists/*
+
+EXPOSE 3000
+
+CMD ["./http2_api"]

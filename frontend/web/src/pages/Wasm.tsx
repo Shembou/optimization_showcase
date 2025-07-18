@@ -1,4 +1,3 @@
-import React from "react";
 import WasmVideo from '../components/WasmVideo';
 import JuliaCanvas from "../components/JuliaCanvasWasm";
 
