@@ -1,0 +1,24 @@
+2025-07-21 11:30:25  INFO http1_1_api::config::server_config: ENVIRONMENT not set. Defaulting to production: environment variable not found
+2025-07-21 11:30:25  INFO http1_1_api::config::server_config: Serving application at port :3004
+2025-07-21 11:32:27  INFO http1_1_api::config::server_config: ENVIRONMENT not set. Defaulting to production: environment variable not found
+2025-07-21 11:32:27  INFO http1_1_api::config::server_config: Serving application at port :3004
+2025-07-21 11:34:20  INFO http1_1_api::config::server_config: Setting up routes
+2025-07-21 11:34:20  INFO http1_1_api::config::server_config: binding socket address
+2025-07-21 11:34:20  INFO http1_1_api::config::server_config: Binding axum server
+2025-07-21 11:34:20  INFO http1_1_api::config::server_config: ENVIRONMENT not set. Defaulting to production: environment variable not found
+2025-07-21 11:34:20  INFO http1_1_api::config::server_config: Serving application at port :3004
+2025-07-21 11:37:26  INFO http1_1_api::config::server_config: Setting up routes
+2025-07-21 11:37:26  INFO http1_1_api::config::server_config: binding socket address
+2025-07-21 11:37:26  INFO http1_1_api::config::server_config: Binding axum server
+2025-07-21 11:37:26  INFO http1_1_api::config::server_config: ENVIRONMENT not set. Defaulting to production: environment variable not found
+2025-07-21 11:37:26  INFO http1_1_api::config::server_config: Serving application at port :3004
+2025-07-21 11:38:30  INFO http1_1_api::config::server_config: Setting up routes
+2025-07-21 11:38:30  INFO http1_1_api::config::server_config: binding socket address
+2025-07-21 11:38:30  INFO http1_1_api::config::server_config: Binding axum server
+2025-07-21 11:38:30  INFO http1_1_api::config::server_config: ENVIRONMENT not set. Defaulting to production: environment variable not found
+2025-07-21 11:38:30  INFO http1_1_api::config::server_config: Serving application at port :3004
+2025-07-21 12:05:30  INFO http1_1_api::config::server_config: Setting up routes
+2025-07-21 12:05:30  INFO http1_1_api::config::server_config: binding socket address
+2025-07-21 12:05:30  INFO http1_1_api::config::server_config: Binding axum server
+2025-07-21 12:05:30  INFO http1_1_api::config::server_config: ENVIRONMENT not set. Defaulting to production: environment variable not found
+2025-07-21 12:05:30  INFO http1_1_api::config::server_config: Serving application at port :3004

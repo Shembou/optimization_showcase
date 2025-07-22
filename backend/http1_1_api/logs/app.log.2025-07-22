@@ -1,0 +1,18 @@
+2025-07-22 17:42:45  INFO http1_1_api::config::server_config: Setting up routes
+2025-07-22 17:42:45  INFO http1_1_api::config::server_config: binding socket address
+2025-07-22 17:42:45  INFO http1_1_api::config::server_config: Binding axum server
+2025-07-22 17:42:45  INFO http1_1_api::config::server_config: ENVIRONMENT not set. Defaulting to production: environment variable not found
+2025-07-22 17:42:45  INFO http1_1_api::config::server_config: Serving application at port :3004
+2025-07-22 17:44:20  INFO http1_1_api::config::server_config: Setting up routes
+2025-07-22 17:44:20  INFO http1_1_api::config::server_config: binding socket address
+2025-07-22 17:44:20  INFO http1_1_api::config::server_config: Binding axum server
+2025-07-22 17:44:20  INFO http1_1_api::config::server_config: ENVIRONMENT not set. Defaulting to production: environment variable not found
+2025-07-22 17:44:20  INFO http1_1_api::config::server_config: Serving application at port :3004
+2025-07-22 17:44:52  INFO http1_1_api::api::home: Serving GET with query param: id:1 at route /api
+2025-07-22 17:53:04  INFO http1_1_api::config::server_config: Setting up routes
+2025-07-22 17:53:04  INFO http1_1_api::config::server_config: binding socket address
+2025-07-22 17:53:04  INFO http1_1_api::config::server_config: Binding axum server
+2025-07-22 17:53:04  INFO http1_1_api::utils::certs: PROTOCOL env var not set. setting default to http/1.1 environment variable not found
+2025-07-22 17:53:04  INFO http1_1_api::config::server_config: ENVIRONMENT not set. Defaulting to production: environment variable not found
+2025-07-22 17:53:04  INFO http1_1_api::config::server_config: Serving application at port :3004
+2025-07-22 17:53:31  INFO http1_1_api::api::home: Serving GET with query param: id:1 at route /api

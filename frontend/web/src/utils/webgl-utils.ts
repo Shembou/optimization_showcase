@@ -1,4 +1,4 @@
-import { IState } from "../interfaces/IState";
+import { type IState } from "../interfaces/IState";
 
 export function compileShader(gl: WebGL2RenderingContext, type: number, source: string) {
     const shader = gl.createShader(type);

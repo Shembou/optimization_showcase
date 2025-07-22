@@ -1,4 +1,3 @@
-import { ACCRETION_FRAG_SRC, ACCRETION_VERT_SRC } from "../shaders/accretion";
 import { compileShader, linkProgram, render_webgl } from "./webgl-utils";
 
 export function render_webgl_canvas(canvas_id: string, vert_src: string, frag_src: string) {

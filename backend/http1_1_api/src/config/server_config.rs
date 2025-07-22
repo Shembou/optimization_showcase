@@ -1,8 +1,7 @@
 use std::env;
 use std::net::SocketAddr;
 
-use crate::api::home::hello;
-use crate::utils::certs::get_certs_config;
+use crate::{api::home::hello, utils::certs::get_certs_config};
 use axum::Router;
 use axum::routing::get;
 use tower_http::cors::{Any, CorsLayer};
@@ -16,22 +15,24 @@ pub struct ApiDoc;
 
 pub async fn configure_server() {
     let _ = dotenv_vault::dotenv();
-    let rustls_config = get_certs_config().await;
+    info!("Setting up routes");
     let app = Router::new().route("/api/", get(hello)).layer(
         CorsLayer::new()
             .allow_origin(Any)
             .allow_methods(Any)
             .allow_headers(Any),
     );
-    let addr = SocketAddr::from(([0, 0, 0, 0], 3000));
-    let mut server = axum_server::bind_rustls(addr, rustls_config);
-    server.http_builder().http2().enable_connect_protocol();
+    info!("binding socket address");
+    let addr = SocketAddr::from(([0, 0, 0, 0], 3004));
+    info!("Binding axum server");
+    let certs = get_certs_config().await;
+    let server = axum_server::bind_rustls(addr, certs);
     let environment = env::var("ENVIRONMENT").unwrap_or_else(|e| {
         info!("ENVIRONMENT not set. Defaulting to production: {}", e);
         "PRODUCTION".to_string()
     });
 
-    info!("Serving application at port :3000");
+    info!("Serving application at port :3004");
     if environment == "DEVELOPMENT" {
         info!(
             "Adding swagger api documentation at https://{}/swagger-ui",

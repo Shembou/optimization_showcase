@@ -3,7 +3,7 @@ import { Fetch } from "../classes/Fetch";
 import { MethodTypes } from "../enums/MethodTypes";
 
 
-export const Http2Fetch = () => {
+export const Http1_1Fetch = () => {
 
     const iterations = 2000;
 
@@ -15,7 +15,7 @@ export const Http2Fetch = () => {
         const fetch = new Fetch<any>();
         const startTime = performance.now();
         const fetchPromises = Array.from({ length: iterations }, (_, i) =>
-            fetch.fetchData(`?id=${i}`, MethodTypes.get, "http2")
+            fetch.fetchData(`?id=${i}`, MethodTypes.get, "http1_1")
         );
 
         try {

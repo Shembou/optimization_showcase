@@ -1,0 +1,9 @@
+http:
+  serversTransports:
+    insecure:
+      insecureSkipVerify: true
+
+tls:
+  certificates:
+    - certFile: /certs/local.crt
+      keyFile:  /certs/local.key

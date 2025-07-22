@@ -1,23 +1,132 @@
 services:
-  api:
+  traefik:
+    image: traefik:v3.4
+    container_name: traefik
+    ports:
+      - "80:80"
+      - "8080:8080"  # Re-added for debugging
+      - "443:443"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - ./certs:/certs:ro
+      - ./dynamic:/dynamic:ro
+    networks:
+      - proxy
+    command:
+      # EntryPoints
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+      - "--entrypoints.web.http.redirections.entrypoint.permanent=true"
+      - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.websecure.http.tls=true"
+
+      # Attach the static configuration tls.yaml file that contains the tls configuration settings
+      - "--providers.file.filename=/dynamic/tls.yaml"
+
+      # Providers 
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.network=proxy"
+
+      # API & Dashboard 
+      - "--api.dashboard=true"
+      - "--api.insecure=false"
+
+      # Observability 
+      - "--log.level=INFO"
+      - "--accesslog=true"
+      - "--metrics.prometheus=true"
+    labels:
+      - "traefik.enable=true"
+
+      - "traefik.http.routers.dashboard.rule=Host(`dashboard.localhost`)"
+      - "traefik.http.routers.dashboard.entrypoints=websecure"
+      - "traefik.http.routers.dashboard.service=api@internal"
+      - "traefik.http.routers.dashboard.tls=true"
+
+  http2_api:
     build:
       context: ./backend/http2_api
-    container_name: api
-    ports:
-      - "3000:3000"
+    container_name: http2_api
     networks:
-      - base-network
+      - proxy
+    # Add this to debug - remove after fixing
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.http2_api.rule=Host(`http2_api.localhost`)"
+      - "traefik.http.routers.http2_api.entrypoints=websecure"
+      - "traefik.http.services.http2_api.loadbalancer.server.scheme=https"
+      - "traefik.http.services.http2_api.loadbalancer.server.port=3000"
+      - "traefik.http.services.http2_api.loadbalancer.serverstransport=insecure@file"
+    volumes:
+      - ./certs:/certs:ro
+
+  http1_1_api:
+    build:
+      context: ./backend/http1_1_api
+    container_name: http1_1_api
+    networks:
+      - proxy
+    # Add this to debug - remove after fixing
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.http1_1_api.rule=Host(`http1_1_api.localhost`)"
+      - "traefik.http.routers.http1_1_api.entrypoints=websecure"
+      - "traefik.http.services.http1_1_api.loadbalancer.server.scheme=https"
+      - "traefik.http.services.http1_1_api.loadbalancer.server.port=3004"
+      - "traefik.http.services.http1_1_api.loadbalancer.serverstransport=insecure@file"
+    volumes:
+      - ./certs:/certs:ro
+
   web:
     build:
       context: ./frontend/web
-    ports:
-      - "443:443"
-    depends_on:
-      - "api"
-    networks:
-      - base-network
     container_name: web
+    networks:
+      - proxy
+    # Add this to debug - remove after fixing
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.web.rule=Host(`web.localhost`)"
+      - "traefik.http.routers.web.entrypoints=websecure"
+      - "traefik.http.services.web.loadbalancer.server.scheme=https"
+      - "traefik.http.services.web.loadbalancer.server.port=443"
+      - "traefik.http.services.web.loadbalancer.serverstransport=insecure@file"
 
 networks:
-  base-network:
-    driver: bridge
+  proxy:
+    name: proxy
+
+#   http1_1_api:
+#     build:
+#       context: ./backend/http1_1_api
+#     container_name: http1_1_api
+#     ports:
+#       - "3004:3004"
+#     networks:
+#       - base-network
+#   grpc: 
+#     build:
+#       context: ./backend/grpc
+#     container_name: grpc
+#     ports:
+#       - "3002:3002"
+#     networks:
+#       - base-network
+#   web:
+#     build:
+#       context: ./frontend/web
+#     ports:
+#       - "443:443"
+#     depends_on:
+#       - "http1_1_api"
+#       - "http2_api"
+#       - "grpc"
+#     networks:
+#       - base-network
+#     container_name: web
+
+# networks:
+#   base-network:
+#     driver: bridge
