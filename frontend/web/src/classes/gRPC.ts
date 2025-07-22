@@ -34,7 +34,7 @@ export class gRPC {
     
 
     private static setupClient() {
-        const client = new GreeterClient('https://localhost/grpc');
+        const client = new GreeterClient('https://grpc.localhost');
 
         // Add some debugging
         console.log('gRPC client created with base URL: /grpc');

@@ -47,7 +47,9 @@ services:
 
   http2_api:
     build:
-      context: ./backend/http2_api
+      context: ./backend/http_api
+      args:
+        - PORT=3000
     container_name: http2_api
     networks:
       - proxy
@@ -61,14 +63,20 @@ services:
       - "traefik.http.services.http2_api.loadbalancer.serverstransport=insecure@file"
     volumes:
       - ./certs:/certs:ro
+    environment:
+      - PORT=3000
+      - PROTOCOL=h2
+      - ENVIRONMENT=PRODUCTION
+
 
   http1_1_api:
     build:
-      context: ./backend/http1_1_api
+      context: ./backend/http_api
+      args:
+       - PORT=3004
     container_name: http1_1_api
     networks:
       - proxy
-    # Add this to debug - remove after fixing
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.http1_1_api.rule=Host(`http1_1_api.localhost`)"
@@ -76,6 +84,25 @@ services:
       - "traefik.http.services.http1_1_api.loadbalancer.server.scheme=https"
       - "traefik.http.services.http1_1_api.loadbalancer.server.port=3004"
       - "traefik.http.services.http1_1_api.loadbalancer.serverstransport=insecure@file"
+    volumes:
+      - ./certs:/certs:ro
+    environment:
+      - PORT=3004
+      - PROTOCOL=http/1.1
+      - ENVIRONMENT=PRODUCTION
+  grpc:
+    build:
+      context: ./backend/grpc
+    container_name: grpc
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.grpc.rule=Host(`grpc.localhost`)"
+      - "traefik.http.routers.grpc.entrypoints=websecure"
+      - "traefik.http.services.grpc.loadbalancer.server.scheme=https"
+      - "traefik.http.services.grpc.loadbalancer.server.port=3002"
+      - "traefik.http.services.grpc.loadbalancer.serverstransport=insecure@file"
     volumes:
       - ./certs:/certs:ro
 

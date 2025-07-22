@@ -1,5 +1,5 @@
 [package]
-name = "http1_1_api"
+name = "http_api"
 version = "0.1.0"
 edition = "2024"
 

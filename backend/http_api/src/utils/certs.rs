@@ -10,10 +10,10 @@ use tracing::info;
 pub async fn get_certs_config() -> RustlsConfig {
     let alpn_protocol = env::var("PROTOCOL").unwrap_or_else(|e| {
         info!(
-            "PROTOCOL env var not set. setting default to http/1.1 {}",
+            "PROTOCOL env var not set. setting default to h2 {}",
             e
         );
-        "http/1.1".to_string()
+        "h2".to_string()
     });
     let cwd = std::env::current_dir().unwrap();
     let cert_path = cwd.join("certs/local.crt");
@@ -36,7 +36,7 @@ pub async fn get_certs_config() -> RustlsConfig {
         .with_single_cert(cert_chain, keys.remove(0))
         .expect("bad certificate/key");
 
-    // Supported ALPN protocols: http/1.1, h2, http/0.9
+    // Supported ALPN protocols: http/1.1, h2
     config.alpn_protocols = vec![format!("{}", alpn_protocol).as_bytes().to_vec()];
 
     RustlsConfig::from_config(Arc::new(config))
