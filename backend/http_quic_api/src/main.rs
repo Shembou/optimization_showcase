@@ -4,16 +4,17 @@ use anyhow::{Context, Result};
 use quinn::crypto::rustls::QuicServerConfig;
 use rustls::pki_types::{CertificateDer, PrivateKeyDer};
 use rustls_pemfile::{certs, pkcs8_private_keys};
-use tracing::{error, info, info_span, Instrument as _};
-
+use tracing::{Instrument as _, error, info, info_span};
 
 struct Configuration {
     cert_path: &'static str,
-    key_path: &'static str
+    key_path: &'static str,
 }
 
 impl Configuration {
-    fn prepare_certificates(&self) -> Result<(Vec<CertificateDer<'static>>, PrivateKeyDer<'static>)> {
+    fn prepare_certificates(
+        &self,
+    ) -> Result<(Vec<CertificateDer<'static>>, PrivateKeyDer<'static>)> {
         // Read and parse certificate chain
         let mut cert_reader = BufReader::new(File::open(self.cert_path)?);
         let cert_chain = certs(&mut cert_reader).collect::<Result<Vec<_>, _>>()?;
@@ -34,8 +35,8 @@ impl Configuration {
 #[tokio::main]
 async fn main() -> Result<()> {
     rustls::crypto::ring::default_provider()
-    .install_default()
-    .expect("Failed to install rustls crypto provider");
+        .install_default()
+        .expect("Failed to install rustls crypto provider");
     tracing_subscriber::fmt::init();
 
     const ALPN_QUIC_HTTP: &[&[u8]] = &[b"h3", b"hq-29"];
@@ -44,22 +45,23 @@ async fn main() -> Result<()> {
     let key_path = "certs/local.key";
     let config = Configuration {
         cert_path,
-        key_path
+        key_path,
     };
 
     let (cert, key) = config.prepare_certificates()?;
-    let addr = SocketAddr::from(([0,0,0,0], 4433));
+    let addr = SocketAddr::from(([0, 0, 0, 0], 4433));
 
     let mut server_crypto = rustls::ServerConfig::builder()
         .with_no_client_auth()
-        .with_single_cert(cert,key)?;
+        .with_single_cert(cert, key)?;
     server_crypto.alpn_protocols = ALPN_QUIC_HTTP.iter().map(|&x| x.into()).collect();
 
-    let mut server_config = quinn::ServerConfig::with_crypto(Arc::new(QuicServerConfig::try_from(server_crypto)?));
+    let mut server_config =
+        quinn::ServerConfig::with_crypto(Arc::new(QuicServerConfig::try_from(server_crypto)?));
 
     let transport_config = Arc::get_mut(&mut server_config.transport).unwrap();
     transport_config.max_concurrent_uni_streams(0_u8.into());
-    
+
     let endpoint = quinn::Endpoint::server(server_config, addr)?;
     info!("listening on {}", endpoint.local_addr()?);
 
@@ -119,10 +121,7 @@ async fn handle_connection(conn: quinn::Incoming) -> Result<()> {
     .await
 }
 
-
-async fn handle_request(
-    (mut send, _recv): (quinn::SendStream, quinn::RecvStream),
-) -> Result<()> {
+async fn handle_request((mut send, _recv): (quinn::SendStream, quinn::RecvStream)) -> Result<()> {
     send.write_all(b"Hello World")
         .await
         .context("failed to send response")?;
