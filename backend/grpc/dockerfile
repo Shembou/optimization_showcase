@@ -2,6 +2,10 @@ FROM rust:alpine AS builder
 
 WORKDIR /usr/src/app
 
+ARG PORT=3002
+
+ENV PORT=${PORT}
+
 RUN apk add --no-cache \
     protobuf \
     protobuf-dev \
@@ -27,6 +31,6 @@ RUN apt-get update && \
     apt-get install -y protobuf-compiler && \
     rm -rf /var/lib/apt/lists/*
 
-EXPOSE 3002
+EXPOSE ${PORT}
 
 CMD ["./grpc"]

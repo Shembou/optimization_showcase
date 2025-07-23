@@ -7,12 +7,11 @@ http {
     default_type application/octet-stream;
     
     server {
-        listen 443 ssl;
+        listen $PORT ssl;
         http2 on;
         ssl_certificate /etc/nginx/certs/cert.pem;
         ssl_certificate_key /etc/nginx/certs/key.pem;
         
-        # Optional: Add some basic SSL settings for security
         ssl_protocols TLSv1.2 TLSv1.3;
         ssl_ciphers HIGH:!aNULL:!MD5;
         ssl_prefer_server_ciphers on;
@@ -23,5 +22,7 @@ http {
         location / {
             try_files $uri $uri/ /index.html;
         }
+        access_log /dev/null;
+        error_log /dev/null;
     }
 }
