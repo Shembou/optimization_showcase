@@ -1,9 +1,9 @@
-use std::{fs::File, io::BufReader, net::SocketAddr, sync::Arc};
+use std::{env, fs::File, io::BufReader, net::SocketAddr, sync::Arc};
 
 use anyhow::{Context, Result};
 use quinn::crypto::rustls::QuicServerConfig;
 use rustls::pki_types::{CertificateDer, PrivateKeyDer};
-use rustls_pemfile::{certs, pkcs8_private_keys};
+use rustls_pemfile::{certs, private_key};
 use tracing::{Instrument as _, error, info, info_span};
 
 struct Configuration {
@@ -19,14 +19,9 @@ impl Configuration {
         let mut cert_reader = BufReader::new(File::open(self.cert_path)?);
         let cert_chain = certs(&mut cert_reader).collect::<Result<Vec<_>, _>>()?;
 
-        // Read and parse private key (PKCS#8)
+        // Read and parse private key
         let mut key_reader = BufReader::new(File::open(self.key_path)?);
-        let mut keys = pkcs8_private_keys(&mut key_reader);
-        let key = match keys.next() {
-            Some(result) => result?,
-            None => anyhow::bail!("No private key found"),
-        };
-        let key = PrivateKeyDer::Pkcs8(key);
+        let key = private_key(&mut key_reader)?.context("No private key found")?;
 
         Ok((cert_chain, key))
     }
@@ -39,6 +34,11 @@ async fn main() -> Result<()> {
         .expect("Failed to install rustls crypto provider");
     tracing_subscriber::fmt::init();
 
+    let port = env::var("PORT").unwrap_or_else(|e| {
+        info!("Could not read PORT from environment variables. Defaulting to 4433. Error:{e}");
+        String::from("4433")
+    });
+
     const ALPN_QUIC_HTTP: &[&[u8]] = &[b"h3", b"hq-29"];
 
     let cert_path = "certs/local.crt";
@@ -49,7 +49,7 @@ async fn main() -> Result<()> {
     };
 
     let (cert, key) = config.prepare_certificates()?;
-    let addr = SocketAddr::from(([0, 0, 0, 0], 4433));
+    let addr = SocketAddr::from(([0, 0, 0, 0], port.parse().unwrap()));
 
     let mut server_crypto = rustls::ServerConfig::builder()
         .with_no_client_auth()

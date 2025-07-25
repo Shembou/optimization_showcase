@@ -2,18 +2,27 @@ use anyhow::{Context, Result};
 use quinn::{Endpoint, crypto::rustls::QuicClientConfig};
 use rustls::RootCertStore;
 use rustls_pemfile::certs;
-use std::{fs::File, io::BufReader, net::ToSocketAddrs, sync::Arc, usize};
+use tokio::time::sleep;
+use std::{env, fs::File, io::BufReader, net::SocketAddr, process::{Child, Command}, sync::Arc, time::Duration, usize};
 
 #[tokio::test]
-async fn test_quic_server_response() -> Result<()> {
+async fn is_establishing_connection() -> Result<()> {
+    let mut server_process = spawn_backend_server()?;
+
+    // Wait for server to start up (basic wait, for demo purposes)
+    sleep(Duration::from_secs(2)).await;
     rustls::crypto::ring::default_provider()
         .install_default()
         .expect("Failed to install rustls crypto provider");
-    let server_addr = "127.0.0.1:4433";
+    let port = env::var("PORT").unwrap_or_else(|e| {
+        println!("{e}");
+        String::from("4433")
+    });
+    let addr: SocketAddr = format!("127.0.0.1:{}", port).parse()?;
 
     let mut roots = RootCertStore::empty();
 
-    let mut cert_reader = BufReader::new(File::open("certs/local.key")?);
+    let mut cert_reader = BufReader::new(File::open("certs/local.crt")?);
     let cert_chain = certs(&mut cert_reader).collect::<Result<Vec<_>, _>>()?;
     for cert in cert_chain {
         roots.add(cert)?;
@@ -31,10 +40,6 @@ async fn test_quic_server_response() -> Result<()> {
     let mut endpoint = Endpoint::client("[::]:0".parse()?)?;
     endpoint.set_default_client_config(client_config);
 
-    let addr = server_addr
-        .to_socket_addrs()?
-        .next()
-        .context("could not resolve server address")?;
 
     let connection = endpoint
         .connect(addr, "localhost")?
@@ -47,5 +52,21 @@ async fn test_quic_server_response() -> Result<()> {
 
     recv.read_to_end(usize::MAX).await?;
 
+    server_process.kill().context("Failed to kill backend process")?;
     Ok(())
+}
+
+fn spawn_backend_server() -> Result<Child> {
+    let mut cmd = Command::new("cargo");
+    cmd.args(&["run", "."]);  // <-- change this to your binary name
+
+    // Optionally pass env vars to the backend
+    cmd.env("PORT", "4433");
+
+    // Redirect stdout/stderr if you want
+    cmd.stdout(std::process::Stdio::null());
+    cmd.stderr(std::process::Stdio::null());
+
+    let child = cmd.spawn().context("Failed to spawn backend process")?;
+    Ok(child)
 }

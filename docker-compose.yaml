@@ -128,6 +128,43 @@ services:
       - "traefik.http.services.web.loadbalancer.serverstransport=insecure@file"
     environment:
       - PORT=443
+  graphql:
+    build:
+      context: ./backend/graphql
+      args:
+        - PORT=4000
+    container_name: graphql
+    networks:
+      - proxy
+    # Add this to debug - remove after fixing
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.graphql.rule=Host(`graphql.localhost`)"
+      - "traefik.http.routers.graphql.entrypoints=websecure"
+      - "traefik.http.services.graphql.loadbalancer.server.scheme=https"
+      - "traefik.http.services.graphql.loadbalancer.server.port=4000"
+      - "traefik.http.services.graphql.loadbalancer.serverstransport=insecure@file"
+    environment:
+      - PORT=4000
+
+  http_quic_api:
+    build:
+      context: ./backend/http_quic_api
+      args:
+        - PORT=4433
+    container_name: http_quic_api
+    networks:
+      - proxy
+    # Add this to debug - remove after fixing
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.http_quic_api.rule=Host(`http_quic_api.localhost`)"
+      - "traefik.http.routers.http_quic_api.entrypoints=websecure"
+      - "traefik.http.services.http_quic_api.loadbalancer.server.scheme=https"
+      - "traefik.http.services.http_quic_api.loadbalancer.server.port=4433"
+      - "traefik.http.services.http_quic_api.loadbalancer.serverstransport=insecure@file"
+    environment:
+      - PORT=4433
 networks:
   proxy:
     name: proxy
