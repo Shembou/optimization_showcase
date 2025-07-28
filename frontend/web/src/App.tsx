@@ -8,6 +8,7 @@ import Wasm from './pages/Wasm';
 import { Http2Fetch } from './pages/Http2Fetch';
 import GrpcShowcase from './pages/grpcShowcase';
 import { Http1_1Fetch } from './pages/Http1_1Fetch';
+import { Http3Fetch } from './pages/Http3Fetch';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
           <Route path="/http2fetch" element={<Http2Fetch />} />
           <Route path="/http1_1fetch" element={<Http1_1Fetch />} />
           <Route path="/grpcShowcase" element={<GrpcShowcase />} />
+          <Route path="/http3Showcase" element={<Http3Fetch />} />
         </Routes>
       </main>
       <Footer />

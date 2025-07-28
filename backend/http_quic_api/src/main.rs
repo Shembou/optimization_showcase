@@ -1,132 +1,25 @@
-use std::{env, fs::File, io::BufReader, net::SocketAddr, sync::Arc};
+use std::{
+    error::Error,
+    net::{IpAddr, Ipv4Addr, SocketAddr},
+};
 
-use anyhow::{Context, Result};
-use quinn::crypto::rustls::QuicServerConfig;
-use rustls::pki_types::{CertificateDer, PrivateKeyDer};
-use rustls_pemfile::{certs, private_key};
-use tracing::{Instrument as _, error, info, info_span};
-
-struct Configuration {
-    cert_path: &'static str,
-    key_path: &'static str,
-}
-
-impl Configuration {
-    fn prepare_certificates(
-        &self,
-    ) -> Result<(Vec<CertificateDer<'static>>, PrivateKeyDer<'static>)> {
-        // Read and parse certificate chain
-        let mut cert_reader = BufReader::new(File::open(self.cert_path)?);
-        let cert_chain = certs(&mut cert_reader).collect::<Result<Vec<_>, _>>()?;
-
-        // Read and parse private key
-        let mut key_reader = BufReader::new(File::open(self.key_path)?);
-        let key = private_key(&mut key_reader)?.context("No private key found")?;
-
-        Ok((cert_chain, key))
-    }
-}
+use crate::common::make_server_endpoint;
+mod common;
 
 #[tokio::main]
-async fn main() -> Result<()> {
-    rustls::crypto::ring::default_provider()
-        .install_default()
-        .expect("Failed to install rustls crypto provider");
-    tracing_subscriber::fmt::init();
+async fn main() -> Result<(), Box<dyn Error + Send + Sync + 'static>> {
+    let server_addr = SocketAddr::new(IpAddr::V4(Ipv4Addr::LOCALHOST), 5001);
+    let (endpoint, _server_cert) = make_server_endpoint(server_addr)?;
+    println!("[server] listening on {}", server_addr);
 
-    let port = env::var("PORT").unwrap_or_else(|e| {
-        info!("Could not read PORT from environment variables. Defaulting to 4433. Error:{e}");
-        String::from("4433")
-    });
-
-    const ALPN_QUIC_HTTP: &[&[u8]] = &[b"h3", b"hq-29"];
-
-    let cert_path = "certs/local.crt";
-    let key_path = "certs/local.key";
-    let config = Configuration {
-        cert_path,
-        key_path,
-    };
-
-    let (cert, key) = config.prepare_certificates()?;
-    let addr = SocketAddr::from(([0, 0, 0, 0], port.parse().unwrap()));
-
-    let mut server_crypto = rustls::ServerConfig::builder()
-        .with_no_client_auth()
-        .with_single_cert(cert, key)?;
-    server_crypto.alpn_protocols = ALPN_QUIC_HTTP.iter().map(|&x| x.into()).collect();
-
-    let mut server_config =
-        quinn::ServerConfig::with_crypto(Arc::new(QuicServerConfig::try_from(server_crypto)?));
-
-    let transport_config = Arc::get_mut(&mut server_config.transport).unwrap();
-    transport_config.max_concurrent_uni_streams(0_u8.into());
-
-    let endpoint = quinn::Endpoint::server(server_config, addr)?;
-    info!("listening on {}", endpoint.local_addr()?);
-
-    while let Some(conn) = endpoint.accept().await {
-        info!("connection incoming");
-        let fut = handle_connection(conn);
+    while let Some(incoming_conn) = endpoint.accept().await {
         tokio::spawn(async move {
-            if let Err(e) = fut.await {
-                error!("connection failed: {reason}", reason = e.to_string())
-            }
+            let conn = incoming_conn.await.unwrap();
+            println!(
+                "[server] connection accepted: addr={}",
+                conn.remote_address()
+            );
         });
     }
-
-    Ok(())
-}
-
-async fn handle_connection(conn: quinn::Incoming) -> Result<()> {
-    let connection = conn.await?;
-    let span = info_span!(
-        "connection",
-        remote = %connection.remote_address(),
-        protocol = %connection
-            .handshake_data()
-            .unwrap()
-            .downcast::<quinn::crypto::rustls::HandshakeData>().unwrap()
-            .protocol
-            .map_or_else(|| "<none>".into(), |x| String::from_utf8_lossy(&x).into_owned())
-    );
-    async {
-        info!("established");
-
-        // Each stream initiated by the client constitutes a new request.
-        loop {
-            let stream = connection.accept_bi().await;
-            let stream = match stream {
-                Err(quinn::ConnectionError::ApplicationClosed { .. }) => {
-                    info!("connection closed");
-                    return Ok(());
-                }
-                Err(e) => {
-                    return Err(e.into());
-                }
-                Ok(s) => s,
-            };
-            let fut = handle_request(stream);
-            tokio::spawn(
-                async move {
-                    if let Err(e) = fut.await {
-                        error!("failed: {reason}", reason = e.to_string());
-                    }
-                }
-                .instrument(info_span!("request")),
-            );
-        }
-    }
-    .instrument(span)
-    .await
-}
-
-async fn handle_request((mut send, _recv): (quinn::SendStream, quinn::RecvStream)) -> Result<()> {
-    send.write_all(b"Hello World")
-        .await
-        .context("failed to send response")?;
-    // Gracefully terminate the stream
-    send.finish().context("failed to finish stream")?;
-    info!("complete");
     Ok(())
 }
