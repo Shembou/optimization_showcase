@@ -10,6 +10,7 @@ import Grpc from './pages/Grpc';
 import { Http1_1Fetch } from './pages/Http1_1Fetch';
 import { Http3Fetch } from './pages/Http3Fetch';
 import WebSocketPage from './pages/WebSocketPage';
+import GraphQL from './pages/GraphQL';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
           <Route path="/grpcShowcase" element={<Grpc />} />
           <Route path="/http3Showcase" element={<Http3Fetch />} />
           <Route path="/wss" element={<WebSocketPage />} />
+          <Route path="/graphql" element={<GraphQL />} />
         </Routes>
       </main>
       <Footer />
