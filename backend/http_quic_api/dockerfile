@@ -15,8 +15,6 @@ WORKDIR /app
 
 COPY --from=builder /usr/src/app/target/release/http_quic_api .
 
-COPY --from=builder /usr/src/app/certs ./certs
-
 RUN apt-get update && apt-get install -y ca-certificates && rm -rf /var/lib/apt/lists/*
 
 EXPOSE $PORT

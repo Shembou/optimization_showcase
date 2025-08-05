@@ -6,9 +6,10 @@ import Home from './pages/Home';
 import { JS } from './pages/JS';
 import Wasm from './pages/Wasm';
 import { Http2Fetch } from './pages/Http2Fetch';
-import GrpcShowcase from './pages/grpcShowcase';
+import Grpc from './pages/Grpc';
 import { Http1_1Fetch } from './pages/Http1_1Fetch';
 import { Http3Fetch } from './pages/Http3Fetch';
+import WebSocketPage from './pages/WebSocketPage';
 
 function App() {
   return (
@@ -21,8 +22,9 @@ function App() {
           <Route path="/wasm" element={<Wasm />} />
           <Route path="/http2fetch" element={<Http2Fetch />} />
           <Route path="/http1_1fetch" element={<Http1_1Fetch />} />
-          <Route path="/grpcShowcase" element={<GrpcShowcase />} />
+          <Route path="/grpcShowcase" element={<Grpc />} />
           <Route path="/http3Showcase" element={<Http3Fetch />} />
+          <Route path="/wss" element={<WebSocketPage />} />
         </Routes>
       </main>
       <Footer />

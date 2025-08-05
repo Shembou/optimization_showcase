@@ -1,0 +1,63 @@
+2025-08-01 11:40:34  INFO http::config::api: Setting up routes
+2025-08-01 11:40:34  INFO http::config::api: binding socket address
+2025-08-01 11:40:34  INFO http::config::api: PORT environment variable not set. Defaulting port to 3000. Err: environment variable not found
+2025-08-01 11:40:34  INFO http::config::api: Binding axum server
+2025-08-01 11:40:34  INFO http::config::api: Serving application at port :3000
+2025-08-01 11:42:50  INFO http::config::api: Setting up routes
+2025-08-01 11:42:50  INFO http::config::api: binding socket address
+2025-08-01 11:42:50  INFO http::config::api: PORT environment variable not set. Defaulting port to 3000. Err: environment variable not found
+2025-08-01 11:42:50  INFO http::config::api: Binding axum server
+2025-08-01 11:42:50  INFO http::config::api: Serving application at port :3000
+2025-08-01 12:04:33  INFO http::config::grpc: Trying to start server at port 3002
+2025-08-01 12:04:33  INFO http::config::api: Setting up routes
+2025-08-01 12:04:33  INFO http::config::api: binding socket address
+2025-08-01 12:04:33  INFO http::config::api: PORT environment variable not set. Defaulting port to 3000. Err: environment variable not found
+2025-08-01 12:04:33  INFO http::config::api: Binding axum server
+2025-08-01 12:04:33  INFO http::config::api: Serving application at port :3000
+2025-08-01 12:08:48  INFO http::config::api: Setting up routes
+2025-08-01 12:08:48  INFO http::config::grpc: Trying to start server at port 3002
+2025-08-01 12:08:48  INFO http::config::api: binding socket address
+2025-08-01 12:08:48  INFO http::config::api: PORT environment variable not set. Defaulting port to 3000. Err: environment variable not found
+2025-08-01 12:08:48  INFO http::config::api: Binding axum server
+2025-08-01 12:08:48  INFO http::config::api: Serving application at port :3000
+2025-08-01 12:09:09  INFO http::config::api: Setting up routes
+2025-08-01 12:09:09  INFO http::config::grpc: Trying to start server at port 3002
+2025-08-01 12:09:09  INFO http::config::api: binding socket address
+2025-08-01 12:09:09  INFO http::config::api: PORT environment variable not set. Defaulting port to 3000. Err: environment variable not found
+2025-08-01 12:09:09  INFO http::config::api: Binding axum server
+2025-08-01 12:09:09  INFO http::config::api: Serving application at port :3000
+2025-08-01 12:09:30  INFO http::config::api: Setting up routes
+2025-08-01 12:09:30  INFO http::config::grpc: Trying to start server at port 3002
+2025-08-01 12:09:30  INFO http::config::api: binding socket address
+2025-08-01 12:09:30  INFO http::config::api: PORT environment variable not set. Defaulting port to 3000. Err: environment variable not found
+2025-08-01 12:09:30  INFO http::config::api: Binding axum server
+2025-08-01 12:09:30  INFO http::config::api: Serving application at port :3000
+2025-08-01 12:10:03  INFO http::api::home: Serving GET at route /api/
+2025-08-01 12:10:06  INFO http::api::home: Serving GET at route /api/
+2025-08-01 12:40:52  INFO http::api::home: Serving GET at route /api/
+2025-08-01 12:41:09  INFO http::api::home: Serving GET at route /api/
+2025-08-01 12:58:55  INFO http::config::grpc: Trying to start server at port 3002
+2025-08-01 12:58:55  INFO http::config::api: Setting up routes
+2025-08-01 12:58:55  INFO http::config::api: binding socket address
+2025-08-01 12:58:55  INFO http::config::api: PORT environment variable not set. Defaulting port to 3000. Err: environment variable not found
+2025-08-01 12:58:55  INFO http::config::api: Binding axum server
+2025-08-01 12:58:55  INFO http::config::api: Serving application at port :3000
+2025-08-01 12:59:41  INFO http::config::grpc: Trying to start server at port 3002
+2025-08-01 12:59:41  INFO http::config::api: Setting up routes
+2025-08-01 12:59:41  INFO http::config::api: binding socket address
+2025-08-01 12:59:41  INFO http::config::api: PORT environment variable not set. Defaulting port to 3000. Err: environment variable not found
+2025-08-01 12:59:41  INFO http::config::api: Binding axum server
+2025-08-01 12:59:41  INFO http::config::api: Serving application at port :3000
+2025-08-01 12:59:49  INFO http::config::api: Setting up routes
+2025-08-01 12:59:49  INFO http::config::grpc: Trying to start server at port 3002
+2025-08-01 12:59:49  INFO http::config::api: binding socket address
+2025-08-01 12:59:49  INFO http::config::api: PORT environment variable not set. Defaulting port to 3000. Err: environment variable not found
+2025-08-01 12:59:49  INFO http::config::api: Binding axum server
+2025-08-01 12:59:49  INFO http::config::api: Serving application at port :3000
+2025-08-01 13:01:28  INFO http::api::home: Serving GET at route /api/
+2025-08-01 13:13:31  INFO http::config::grpc: Trying to start server at port 3002
+2025-08-01 13:13:31  INFO http::config::api: Setting up routes
+2025-08-01 13:13:31  INFO http::config::api: binding socket address
+2025-08-01 13:13:31  INFO http::config::api: PORT environment variable not set. Defaulting port to 3000. Err: environment variable not found
+2025-08-01 13:13:31  INFO http::config::api: Binding axum server
+2025-08-01 13:13:31  INFO http::config::api: Serving application at port :3000

@@ -1,11 +1,12 @@
 services:
   traefik:
-    image: traefik:v3.4
+    image: traefik
     container_name: traefik
     ports:
       - "80:80"
-      - "8080:8080"  # Re-added for debugging
-      - "443:443"
+      - "8080:8080" # Re-added for debugging
+      - "443:443/tcp"
+      - "443:443/udp"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
       - ./certs:/certs:ro
@@ -20,6 +21,7 @@ services:
       - "--entrypoints.web.http.redirections.entrypoint.permanent=true"
       - "--entrypoints.websecure.address=:443"
       - "--entrypoints.websecure.http.tls=true"
+      - "--entrypoints.websecure.http3=true"
 
       # Attach the static configuration tls.yaml file that contains the tls configuration settings
       - "--providers.file.filename=/dynamic/tls.yaml"
@@ -45,35 +47,41 @@ services:
       - "traefik.http.routers.dashboard.service=api@internal"
       - "traefik.http.routers.dashboard.tls=true"
 
-  # http2_api:
-  #   build:
-  #     context: ./backend/http_api
-  #     args:
-  #       - PORT=3000
-  #   container_name: http2_api
-  #   networks:
-  #     - proxy
-  #   # Add this to debug - remove after fixing
-  #   labels:
-  #     - "traefik.enable=true"
-  #     - "traefik.http.routers.http2_api.rule=Host(`http2_api.localhost`)"
-  #     - "traefik.http.routers.http2_api.entrypoints=websecure"
-  #     - "traefik.http.services.http2_api.loadbalancer.server.scheme=https"
-  #     - "traefik.http.services.http2_api.loadbalancer.server.port=3000"
-  #     - "traefik.http.services.http2_api.loadbalancer.serverstransport=insecure@file"
-  #   volumes:
-  #     - ./certs:/certs:ro
-  #   environment:
-  #     - PORT=3000
-  #     - PROTOCOL=h2
-  #     - ENVIRONMENT=PRODUCTION
+  http2_api:
+    build:
+      context: ./backend/http
+      args:
+        - API_PORT=3000
+        - GRPC_PORT=3003
+    container_name: http2
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+
+      - "traefik.http.routers.http2_api.rule=Host(`http2_api.localhost`)"
+      - "traefik.http.routers.http2_api.entrypoints=websecure"
+      - "traefik.http.routers.http2_api.service=http2_api_service"
+      - "traefik.http.services.http2_api_service.loadbalancer.server.port=3000"
+      - "traefik.http.services.http2_api_service.loadbalancer.server.scheme=https"
+      - "traefik.http.services.http2_api_service.loadbalancer.serverstransport=insecure@file"
+
+      - "traefik.http.routers.grpc_api.rule=Host(`grpc_api.localhost`)"
+      - "traefik.http.routers.grpc_api.entrypoints=websecure"
+      - "traefik.http.routers.grpc_api.service=grpc_service"
+      - "traefik.http.services.grpc_service.loadbalancer.server.port=3003"
+      - "traefik.http.services.grpc_service.loadbalancer.server.scheme=https"
+      - "traefik.http.services.grpc_service.loadbalancer.serverstransport=insecure@file"
+    environment:
+      - API_PORT=3000
+      - GRPC_PORT=3003
 
 
   # http1_1_api:
   #   build:
   #     context: ./backend/http_api
   #     args:
-  #      - PORT=3004
+  #       - PORT=3004
   #   container_name: http1_1_api
   #   networks:
   #     - proxy
@@ -90,25 +98,6 @@ services:
   #     - PORT=3004
   #     - PROTOCOL=http/1.1
   #     - ENVIRONMENT=PRODUCTION
-  # grpc:
-  #   build:
-  #     context: ./backend/grpc
-  #     args:
-  #       - PORT=5000
-  #   container_name: grpc
-  #   networks:
-  #     - proxy
-  #   labels:
-  #     - "traefik.enable=true"
-  #     - "traefik.http.routers.grpc.rule=Host(`grpc.localhost`)"
-  #     - "traefik.http.routers.grpc.entrypoints=websecure"
-  #     - "traefik.http.services.grpc.loadbalancer.server.scheme=https"
-  #     - "traefik.http.services.grpc.loadbalancer.server.port=5000"
-  #     - "traefik.http.services.grpc.loadbalancer.serverstransport=insecure@file"
-  #   volumes:
-  #     - ./certs:/certs:ro
-  #   environment:
-  #     - PORT=5000
 
   web:
     build:
@@ -128,80 +117,27 @@ services:
       - "traefik.http.services.web.loadbalancer.serverstransport=insecure@file"
     environment:
       - PORT=443
-      - HTTP_QUIC_API_ENDPOINT=http_quic_api.localhost
-      
-  # graphql:
-  #   build:
-  #     context: ./backend/graphql
-  #     args:
-  #       - PORT=4000
-  #   container_name: graphql
-  #   networks:
-  #     - proxy
-  #   # Add this to debug - remove after fixing
-  #   labels:
-  #     - "traefik.enable=true"
-  #     - "traefik.http.routers.graphql.rule=Host(`graphql.localhost`)"
-  #     - "traefik.http.routers.graphql.entrypoints=websecure"
-  #     - "traefik.http.services.graphql.loadbalancer.server.scheme=https"
-  #     - "traefik.http.services.graphql.loadbalancer.server.port=4000"
-  #     - "traefik.http.services.graphql.loadbalancer.serverstransport=insecure@file"
-  #   environment:
-  #     - PORT=4000
+      - HTTP_API_ENDPOINT=http2_api.localhost
+      - WEB_GRPC_ENDPOINT=grpc_api.localhost
 
-  http_quic_api:
-    volumes:
-    - ./certs:/certs:ro
-    build:
-      context: ./backend/http_quic_api
-      args:
-        - PORT=4433
-    container_name: http_quic_api
-    networks:
-      - proxy
-    # Add this to debug - remove after fixing
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.http_quic_api.rule=Host(`http_quic_api.localhost`)"
-      - "traefik.http.routers.http_quic_api.entrypoints=websecure"
-      - "traefik.http.services.http_quic_api.loadbalancer.server.scheme=https"
-      - "traefik.http.services.http_quic_api.loadbalancer.server.port=4433"
-      - "traefik.http.services.http_quic_api.loadbalancer.serverstransport=insecure@file"
-    environment:
-      - PORT=4433
+#   TODO: WAIT FOR OFFICIAL SUPPORT OF HTTP3/QUIC. AT LEAST WEBTRANSPORT. CURRENTLY ITS A RABBITHOLE
+#   http_quic_api:
+#     build:
+#       context: ./backend/http_quic_api
+#       args:
+#         - PORT=4433
+#     container_name: http_quic_api
+#     networks:
+#       - proxy
+#     labels:
+#       - "traefik.enable=true"
+#       - "traefik.http.routers.http_quic_api.rule=Host(`http_quic_api.localhost`)"
+#       - "traefik.http.routers.http_quic_api.entrypoints=websecure"
+#       - "traefik.http.services.http_quic_api.loadbalancer.server.scheme=https"
+#       - "traefik.http.services.http_quic_api.loadbalancer.server.port=4433"
+#       - "traefik.http.services.http_quic_api.loadbalancer.serverstransport=insecure@file"
+#     environment:
+#       - PORT=4433
 networks:
   proxy:
     name: proxy
-
-#   http1_1_api:
-#     build:
-#       context: ./backend/http1_1_api
-#     container_name: http1_1_api
-#     ports:
-#       - "3004:3004"
-#     networks:
-#       - base-network
-#   grpc: 
-#     build:
-#       context: ./backend/grpc
-#     container_name: grpc
-#     ports:
-#       - "3002:3002"
-#     networks:
-#       - base-network
-#   web:
-#     build:
-#       context: ./frontend/web
-#     ports:
-#       - "443:443"
-#     depends_on:
-#       - "http1_1_api"
-#       - "http2_api"
-#       - "grpc"
-#     networks:
-#       - base-network
-#     container_name: web
-
-# networks:
-#   base-network:
-#     driver: bridge

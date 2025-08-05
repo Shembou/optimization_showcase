@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { gRPC } from '../classes/gRPC';
 
-const GrpcShowcase = () => {
+const Grpc = () => {
     const [message, setMessage] = useState('');
     const [response, setResponse] = useState('');
 
@@ -9,7 +9,6 @@ const GrpcShowcase = () => {
         e.preventDefault();
         try {
             const res = await gRPC.helloRPC(message);
-            // @ts-ignore
             setResponse(res.getMessage());
         } catch (error) {
             setResponse('Error: ' + error);
@@ -38,4 +37,4 @@ const GrpcShowcase = () => {
     );
 };
 
-export default GrpcShowcase;
+export default Grpc;

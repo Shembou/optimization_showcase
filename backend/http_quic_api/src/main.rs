@@ -8,7 +8,7 @@ mod common;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error + Send + Sync + 'static>> {
-    let server_addr = SocketAddr::new(IpAddr::V4(Ipv4Addr::LOCALHOST), 5001);
+    let server_addr = SocketAddr::new(IpAddr::V4(Ipv4Addr::LOCALHOST), 5000);
     let (endpoint, _server_cert) = make_server_endpoint(server_addr)?;
     println!("[server] listening on {}", server_addr);
 

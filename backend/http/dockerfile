@@ -1,0 +1,42 @@
+FROM rust:alpine AS builder
+
+WORKDIR /usr/src/app
+
+ARG API_PORT=3000
+
+ARG GRPC_PORT=3002
+
+ENV API_PORT=${API_PORT}
+
+ENV GRPC_PORT=${GRPC_PORT}
+
+RUN apk add --no-cache \
+    protobuf \
+    protobuf-dev \
+    build-base \
+    pkgconfig \
+    git \
+    curl
+
+
+COPY . .
+
+RUN cargo build --release
+
+FROM debian:bullseye-slim AS runtime
+
+WORKDIR /app
+
+COPY --from=builder /usr/src/app/certs ./certs
+
+COPY --from=builder /usr/src/app/target/release/http .
+
+COPY --from=builder /usr/src/app/proto ./proto
+
+RUN apt-get update && \
+    apt-get install -y protobuf-compiler && \
+    rm -rf /var/lib/apt/lists/*
+
+EXPOSE ${API_PORT} ${GRPC_PORT}
+
+CMD ["./http"]

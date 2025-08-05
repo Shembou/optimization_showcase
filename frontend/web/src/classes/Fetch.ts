@@ -2,10 +2,8 @@ import type { MethodType } from "../enums/MethodTypes";
 
 const FetchProtocol = {
     http1_1: "https://http1_1_api.localhost",
-    http2: "https://http2_api.localhost"
+    http2: `https://http2_api.localhost`
 } as const
-
-// Define as union of string literals
 
 export class Fetch<T = any> {
     public async fetchData(
@@ -17,7 +15,6 @@ export class Fetch<T = any> {
         const headers = new Headers({
             "Content-Type": "application/json",
         });
-        console.log(FetchProtocol[fetchType])
 
         const response = await fetch(`${FetchProtocol[fetchType]}/api/${url}`, {
             method,
