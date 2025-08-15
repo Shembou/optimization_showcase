@@ -5,10 +5,12 @@ use tonic_web::GrpcWebLayer;
 use tower_http::cors::{Any, CorsLayer};
 use tracing::info;
 
-use crate::proto::{greeter::greeter_server::GreeterServer, server::MyGreeter};
+use crate::{
+    config::redis::get_redis_pool,
+    proto::{server::MyService, user::user_server::UserServer},
+};
 
 pub async fn configure_gprc_server() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-
     info!("binding socket address");
     let port = env::var("GRPC_PORT").unwrap_or_else(|e| {
         info!(
@@ -19,7 +21,8 @@ pub async fn configure_gprc_server() -> Result<(), Box<dyn std::error::Error + S
     });
     let port_number: u16 = port.parse()?;
     let addr = SocketAddr::from(([0, 0, 0, 0], port_number));
-    let greeter = GreeterServer::new(MyGreeter::default());
+    let redis_pool = get_redis_pool();
+    let users = UserServer::new(MyService::new(redis_pool));
 
     const FILE_DESCRIPTOR_SET: &[u8] = tonic::include_file_descriptor_set!("greeter_descriptor");
 
@@ -43,9 +46,10 @@ pub async fn configure_gprc_server() -> Result<(), Box<dyn std::error::Error + S
                 .allow_methods(Any)
                 .allow_headers(Any),
         )
+        .max_frame_size(16_777_215)
         .accept_http1(true)
         .layer(GrpcWebLayer::new())
-        .add_service(greeter)
+        .add_service(users)
         .add_service(reflection_service)
         .serve(addr)
         .await?;

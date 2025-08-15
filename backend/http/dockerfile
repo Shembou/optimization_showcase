@@ -1,4 +1,4 @@
-FROM rust:alpine AS builder
+FROM rust:bullseye AS builder
 
 WORKDIR /usr/src/app
 
@@ -10,16 +10,22 @@ ENV API_PORT=${API_PORT}
 
 ENV GRPC_PORT=${GRPC_PORT}
 
-RUN apk add --no-cache \
-    protobuf \
-    protobuf-dev \
-    build-base \
-    pkgconfig \
+ENV SQLX_OFFLINE=true
+
+RUN apt-get update && \
+    apt-get install -y \
+    pkg-config \
+    libssl-dev \
+    protobuf-compiler \
+    build-essential \
     git \
     curl
 
-
 COPY . .
+
+COPY ./.sqlx ./.sqlx
+
+RUN cargo install sqlx-cli
 
 RUN cargo build --release
 

@@ -2,22 +2,24 @@ import { useGraphQL } from "../hooks/graphql";
 
 const GraphQL = () => {
     type TResult = {
-        add: number,
-        humans: {
+        users: {
+            id: number,
             name: string,
-            age: number
+            language: string,
+            bio: string
         }[]
     }
-    const { loading, result } = useGraphQL<TResult>(`add(a:2,b:2)
-  humans {
+    const { loading, result } = useGraphQL<TResult>(`  users {
+    id,
     name,
-    age
+    language,
+    bio
   }`);
 
     return (
         <section>
             {!loading && <div className="grid">
-                <p>{result?.humans[0].age}</p>
+                <p>{result?.users[0].id}</p>
             </div>}
         </section>
     );

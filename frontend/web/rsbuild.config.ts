@@ -8,7 +8,9 @@ export default defineConfig({
     pluginBabel({
       include: /\.(?:jsx|tsx)$/,
       babelLoaderOptions(opts) {
-        opts.plugins?.unshift('babel-plugin-react-compiler');
+        opts.plugins?.unshift([
+          'babel-plugin-react-compiler'
+        ]);
       },
     }),
   ],

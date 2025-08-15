@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+// TODO: Change option later
+option go_package="github.com/Shembou/optimization_showcase/go_backend/cmd/grpc/user/user";
+
+package user;
+service User {
+    rpc UserRPC (Empty) returns (UsersList);
+}
+
+message Empty {}
+
+message UserMessage {
+    int32 id = 1;
+    string name = 2;
+    string language = 3;
+    string bio = 4;
+    int32 version = 5;
+}
+
+message UsersList {
+    repeated UserMessage users = 1;
+}

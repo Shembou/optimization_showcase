@@ -1,5 +1,7 @@
 use juniper::graphql_object;
 
+use crate::{config::db::get_db_pool, model::user::User, sql::users::DbUserQueries};
+
 #[derive(Clone)]
 pub struct Human {
     pub name: String,
@@ -16,6 +18,7 @@ impl Human {
         self.age
     }
 }
+
 pub struct Query;
 
 #[graphql_object]
@@ -35,5 +38,10 @@ impl Query {
                 age: 25,
             },
         ]
+    }
+
+    async fn users() -> Result<Vec<User>, juniper::FieldError> {
+        let users = DbUserQueries::get_users(get_db_pool()).await?;
+        Ok(users)
     }
 }

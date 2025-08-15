@@ -1,0 +1,11 @@
+2025-08-06 14:24:56  INFO http::config::db: Attempting to read DATABASE_URL env
+2025-08-06 14:24:56  INFO http::config::db: Creating DB_POOL
+2025-08-06 14:24:56  INFO http::config::grpc: binding socket address
+2025-08-06 14:24:56  INFO http::config::api: Setting up routes
+2025-08-06 14:24:56  INFO http::config::grpc: GRPC_PORT environment variable not set. Defaulting port to 3003. Err: environment variable not found
+2025-08-06 14:24:56  INFO http::config::api: binding socket address
+2025-08-06 14:24:56  INFO http::config::api: API_PORT environment variable not set. Defaulting port to 3000. Err: environment variable not found
+2025-08-06 14:24:56  INFO http::config::api: Binding axum server
+2025-08-06 14:24:56  INFO http::config::api: Serving application at port :3000
+2025-08-06 14:25:45  INFO http::api::home: Serving GET at route /api/
+2025-08-06 14:25:59  INFO http::api::home: Serving GET at route /api/

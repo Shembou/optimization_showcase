@@ -22,6 +22,7 @@ services:
       - "--entrypoints.websecure.address=:443"
       - "--entrypoints.websecure.http.tls=true"
       - "--entrypoints.websecure.http3=true"
+      - "--entrypoints.postgres.address=:5432/tcp"
 
       # Attach the static configuration tls.yaml file that contains the tls configuration settings
       - "--providers.file.filename=/dynamic/tls.yaml"
@@ -47,97 +48,216 @@ services:
       - "traefik.http.routers.dashboard.service=api@internal"
       - "traefik.http.routers.dashboard.tls=true"
 
-  http2_api:
-    build:
-      context: ./backend/http
-      args:
-        - API_PORT=3000
-        - GRPC_PORT=3003
-    container_name: http2
-    networks:
-      - proxy
-    labels:
-      - "traefik.enable=true"
-
-      - "traefik.http.routers.http2_api.rule=Host(`http2_api.localhost`)"
-      - "traefik.http.routers.http2_api.entrypoints=websecure"
-      - "traefik.http.routers.http2_api.service=http2_api_service"
-      - "traefik.http.services.http2_api_service.loadbalancer.server.port=3000"
-      - "traefik.http.services.http2_api_service.loadbalancer.server.scheme=https"
-      - "traefik.http.services.http2_api_service.loadbalancer.serverstransport=insecure@file"
-
-      - "traefik.http.routers.grpc_api.rule=Host(`grpc_api.localhost`)"
-      - "traefik.http.routers.grpc_api.entrypoints=websecure"
-      - "traefik.http.routers.grpc_api.service=grpc_service"
-      - "traefik.http.services.grpc_service.loadbalancer.server.port=3003"
-      - "traefik.http.services.grpc_service.loadbalancer.server.scheme=https"
-      - "traefik.http.services.grpc_service.loadbalancer.serverstransport=insecure@file"
-    environment:
-      - API_PORT=3000
-      - GRPC_PORT=3003
-
-
-  # http1_1_api:
+  # http2_api:
   #   build:
-  #     context: ./backend/http_api
+  #     context: ./backend/http
+  #     dockerfile: dockerfile
   #     args:
-  #       - PORT=3004
-  #   container_name: http1_1_api
+  #       API_PORT: 3001
+  #       GRPC_PORT: 3003
+  #   container_name: http2
+  #   networks:
+  #     - proxy
+  #   depends_on:
+  #     db:
+  #       condition: service_healthy
+  #   labels:
+  #     - "traefik.enable=true"
+
+  #     - "traefik.http.routers.http2_api.rule=Host(`http2_api.localhost`)"
+  #     - "traefik.http.routers.http2_api.entrypoints=websecure"
+  #     - "traefik.http.routers.http2_api.service=http2_api_service"
+  #     - "traefik.http.services.http2_api_service.loadbalancer.server.port=3001"
+  #     - "traefik.http.services.http2_api_service.loadbalancer.server.scheme=https"
+  #     - "traefik.http.services.http2_api_service.loadbalancer.serverstransport=insecure@file"
+
+  #     - "traefik.http.routers.grpc_api.rule=Host(`grpc_api.localhost`)"
+  #     - "traefik.http.routers.grpc_api.entrypoints=websecure"
+  #     - "traefik.http.routers.grpc_api.service=grpc_service"
+  #     - "traefik.http.services.grpc_service.loadbalancer.server.port=3003"
+  #     - "traefik.http.services.grpc_service.loadbalancer.server.scheme=https"
+  #     - "traefik.http.services.grpc_service.loadbalancer.serverstransport=insecure@file"
+  #   environment:
+  #     API_PORT: 3001
+  #     GRPC_PORT: 3003
+  #     DATABASE_URL: "postgresql://admin:password@db:5432/local_db"
+  #     REDIS_URL: "redis://redis:6379"
+
+  # web:
+  #   build:
+  #     context: ./frontend/web
+  #     dockerfile: Dockerfile
+  #     args:
+  #       PORT: 443
+  #   container_name: web
   #   networks:
   #     - proxy
   #   labels:
   #     - "traefik.enable=true"
-  #     - "traefik.http.routers.http1_1_api.rule=Host(`http1_1_api.localhost`)"
-  #     - "traefik.http.routers.http1_1_api.entrypoints=websecure"
-  #     - "traefik.http.services.http1_1_api.loadbalancer.server.scheme=https"
-  #     - "traefik.http.services.http1_1_api.loadbalancer.server.port=3004"
-  #     - "traefik.http.services.http1_1_api.loadbalancer.serverstransport=insecure@file"
-  #   volumes:
-  #     - ./certs:/certs:ro
+  #     - "traefik.http.routers.web.rule=Host(`web.localhost`)"
+  #     - "traefik.http.routers.web.entrypoints=websecure"
+  #     - "traefik.http.services.web.loadbalancer.server.scheme=https"
+  #     - "traefik.http.services.web.loadbalancer.server.port=443"
+  #     - "traefik.http.services.web.loadbalancer.serverstransport=insecure@file"
   #   environment:
-  #     - PORT=3004
-  #     - PROTOCOL=http/1.1
-  #     - ENVIRONMENT=PRODUCTION
-
-  web:
-    build:
-      context: ./frontend/web
-      args:
-        - PORT=443
-    container_name: web
+  #     PORT: 443
+  #     HTTP_API_ENDPOINT: http2_api.localhost
+  #     WEB_GRPC_ENDPOINT: grpc_api.localhost
+  db:
+    image: postgres
+    restart: always
+    container_name: db
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: local_db
+    ports:
+      - "5432:5432"
     networks:
       - proxy
-    # Add this to debug - remove after fixing
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./database:/docker-entrypoint-initdb.d:ro
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.web.rule=Host(`web.localhost`)"
-      - "traefik.http.routers.web.entrypoints=websecure"
-      - "traefik.http.services.web.loadbalancer.server.scheme=https"
-      - "traefik.http.services.web.loadbalancer.server.port=443"
-      - "traefik.http.services.web.loadbalancer.serverstransport=insecure@file"
+      - "traefik.tcp.routers.postgres.rule=HostSNI(`*`)"
+      - "traefik.tcp.routers.postgres.entrypoints=postgres"
+      - "traefik.tcp.services.postgres.loadbalancer.server.port=5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U admin -d local_db" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin
     environment:
-      - PORT=443
-      - HTTP_API_ENDPOINT=http2_api.localhost
-      - WEB_GRPC_ENDPOINT=grpc_api.localhost
+      PGADMIN_DEFAULT_EMAIL: admin@localhost.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - proxy
+    depends_on:
+      - db
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.pgadmin.rule=Host(`pgadmin.localhost`)"
+      - "traefik.http.routers.pgadmin.entrypoints=websecure"
+      - "traefik.http.routers.pgadmin.tls=true"
+      - "traefik.http.services.pgadmin.loadbalancer.server.port=80"
+  go_api:
+    build:
+      context: ./go_backend
+      dockerfile: dockerfile
+    container_name: go_api
+    networks:
+      - proxy
+    depends_on:
+      db:
+        condition: service_healthy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.go_api.rule=Host(`go_api.localhost`)"
+      - "traefik.http.routers.go_api.entrypoints=websecure"
+      - "traefik.http.services.go_api.loadbalancer.server.port=4000"
+      - "traefik.http.services.go_api.loadbalancer.server.scheme=https"
+      - "traefik.http.services.go_api.loadbalancer.serverstransport=insecure@file"
+    environment:
+      READINGLIST_DB_DSN: postgres://admin:password@db/local_db?sslmode=disable
+      COMMAND: api
+      PORT: 4000
 
-#   TODO: WAIT FOR OFFICIAL SUPPORT OF HTTP3/QUIC. AT LEAST WEBTRANSPORT. CURRENTLY ITS A RABBITHOLE
-#   http_quic_api:
-#     build:
-#       context: ./backend/http_quic_api
-#       args:
-#         - PORT=4433
-#     container_name: http_quic_api
-#     networks:
-#       - proxy
-#     labels:
-#       - "traefik.enable=true"
-#       - "traefik.http.routers.http_quic_api.rule=Host(`http_quic_api.localhost`)"
-#       - "traefik.http.routers.http_quic_api.entrypoints=websecure"
-#       - "traefik.http.services.http_quic_api.loadbalancer.server.scheme=https"
-#       - "traefik.http.services.http_quic_api.loadbalancer.server.port=4433"
-#       - "traefik.http.services.http_quic_api.loadbalancer.serverstransport=insecure@file"
-#     environment:
-#       - PORT=4433
+  go_graphql:
+    build:
+      context: ./go_backend
+      dockerfile: dockerfile
+    container_name: go_graphql
+    networks:
+      - proxy
+    depends_on:
+      db:
+        condition: service_healthy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.go_graphql.rule=Host(`go_graphql.localhost`)"
+      - "traefik.http.routers.go_graphql.entrypoints=websecure"
+      - "traefik.http.services.go_graphql.loadbalancer.server.port=8080"
+      - "traefik.http.services.go_graphql.loadbalancer.server.scheme=https"
+      - "traefik.http.services.go_graphql.loadbalancer.serverstransport=insecure@file"
+    environment:
+      READINGLIST_DB_DSN: postgres://admin:password@db/local_db?sslmode=disable
+      COMMAND: graphql
+      PORT: 8080
+  go_grpc:
+    build:
+      context: ./go_backend
+      dockerfile: dockerfile
+    container_name: go_grpc
+    networks:
+      - proxy
+    depends_on:
+      db:
+        condition: service_healthy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.go_grpc.rule=Host(`go_grpc.localhost`)"
+      - "traefik.http.routers.go_grpc.entrypoints=websecure"
+      - "traefik.http.services.go_grpc.loadbalancer.server.port=50051"
+      - "traefik.http.services.go_grpc.loadbalancer.server.scheme=https"
+      - "traefik.http.services.go_grpc.loadbalancer.serverstransport=insecure@file"
+    environment:
+      READINGLIST_DB_DSN: postgres://admin:password@db/local_db?sslmode=disable
+      COMMAND: grpc
+      PORT: 50051
+  # redis:
+  #   image: redis
+  #   container_name: redis
+  #   restart: always
+  #   ports:
+  #     - "6379:6379"
+  #   networks:
+  #     - proxy
+  #   labels:
+  #     - "traefik.enable=false"
+  # prometheus:
+  #   image: prom/prometheus:latest
+  #   container_name: prometheus
+  #   volumes:
+  #     - ./prometheus.yaml:/etc/prometheus/prometheus.yml
+  #   networks:
+  #     - proxy
+  #   ports:
+  #     - "9090:9090"
+  #   labels:
+  #     - "traefik.enable=true"
+  #     - "traefik.http.routers.prometheus.rule=Host(`prometheus.localhost`)"
+  #     - "traefik.http.routers.prometheus.entrypoints=websecure"
+  #     - "traefik.http.routers.prometheus.tls=true"
+  #     - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
+  # grafana:
+  #   image: grafana/grafana-oss
+  #   container_name: grafana
+  #   networks:
+  #     - proxy
+  #   ports:
+  #     - "3000:3000"
+  #   depends_on:
+  #     - prometheus
+  #   volumes:
+  #     - grafana_storage:/var/lib/grafana
+  #   labels:
+  #     - "traefik.enable=true"
+  #     - "traefik.http.routers.grafana.rule=Host(`grafana.localhost`)"
+  #     - "traefik.http.routers.grafana.entrypoints=websecure"
+  #     - "traefik.http.routers.grafana.tls=true"
+  #     - "traefik.http.services.grafana.loadbalancer.server.port=3000"
+
+
 networks:
   proxy:
     name: proxy
+volumes:
+  pgadmin_data:
+  db_data:
+  grafana_storage:
