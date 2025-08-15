@@ -8,7 +8,7 @@ export let options = {
 };
 
 export default function () {
-  const res = http.get('https://http2_api.localhost/api/');
+  const res = http.get('https://go_api.localhost/v1/users');
 
   check(res, {
     'status is 200': (r) => r.status === 200,

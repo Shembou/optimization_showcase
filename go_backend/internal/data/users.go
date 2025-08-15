@@ -63,7 +63,9 @@ func (u UserModel) GetAll() ([]*User, error) {
 	if err != nil {
 		return nil, err
 	}
-
+	if _, found := u.Cache.Get("users"); found {
+		return users, nil
+	}
 	u.Cache.SetWithTTL("users", string(js), 1, 60*time.Second)
 
 	return users, nil

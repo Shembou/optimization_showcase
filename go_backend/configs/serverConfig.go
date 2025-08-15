@@ -49,10 +49,9 @@ func (config *Config) ConfigureServer() Config {
 	}
 
 	cfg.Cache, err = ristretto.NewCache(&ristretto.Config[string, string]{
-		NumCounters:            1e7,
-		MaxCost:                1 << 30,
-		BufferItems:            64,
-		TtlTickerDurationInSec: 60,
+		NumCounters: 1e6,
+		MaxCost:     100 << 20,
+		BufferItems: 64,
 	})
 
 	if err != nil {
