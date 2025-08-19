@@ -1,6 +1,5 @@
 syntax = "proto3";
 
-// TODO: Change option later
 option go_package="github.com/Shembou/optimization_showcase/go_backend/cmd/grpc/user/user";
 
 package user;

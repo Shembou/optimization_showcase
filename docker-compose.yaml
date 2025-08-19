@@ -210,6 +210,25 @@ services:
       READINGLIST_DB_DSN: postgres://admin:password@db/local_db?sslmode=disable
       COMMAND: grpc
       PORT: 50051
+
+  soap:
+    build:
+      context: ./soap
+      dockerfile: dockerfile
+    container_name: soap
+    networks:
+      - proxy
+    depends_on:
+      db:
+        condition: service_healthy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.soap.rule=Host(`soap.localhost`)"
+      - "traefik.http.routers.soap.entrypoints=websecure"
+      - "traefik.http.services.soap.loadbalancer.server.port=9001"
+      - "traefik.http.services.soap.loadbalancer.server.scheme=https"
+      - "traefik.http.services.soap.loadbalancer.serverstransport=insecure@file"
+
   # redis:
   #   image: redis
   #   container_name: redis

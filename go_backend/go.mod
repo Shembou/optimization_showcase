@@ -4,6 +4,7 @@ go 1.24.5
 
 require (
 	github.com/99designs/gqlgen v0.17.78
+	github.com/dgraph-io/ristretto/v2 v2.2.0
 	github.com/lib/pq v1.10.9
 	github.com/vektah/gqlparser/v2 v2.5.30
 	google.golang.org/grpc v1.74.2
@@ -13,7 +14,6 @@ require (
 require (
 	github.com/agnivade/levenshtein v1.2.1 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
-	github.com/dgraph-io/ristretto/v2 v2.2.0 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
