@@ -83,26 +83,26 @@ services:
   #     DATABASE_URL: "postgresql://admin:password@db:5432/local_db"
   #     REDIS_URL: "redis://redis:6379"
 
-  # web:
-  #   build:
-  #     context: ./frontend/web
-  #     dockerfile: Dockerfile
-  #     args:
-  #       PORT: 443
-  #   container_name: web
-  #   networks:
-  #     - proxy
-  #   labels:
-  #     - "traefik.enable=true"
-  #     - "traefik.http.routers.web.rule=Host(`web.localhost`)"
-  #     - "traefik.http.routers.web.entrypoints=websecure"
-  #     - "traefik.http.services.web.loadbalancer.server.scheme=https"
-  #     - "traefik.http.services.web.loadbalancer.server.port=443"
-  #     - "traefik.http.services.web.loadbalancer.serverstransport=insecure@file"
-  #   environment:
-  #     PORT: 443
-  #     HTTP_API_ENDPOINT: http2_api.localhost
-  #     WEB_GRPC_ENDPOINT: grpc_api.localhost
+  web:
+    build:
+      context: ./frontend/web
+      dockerfile: Dockerfile
+      args:
+        PORT: 443
+    container_name: web
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.web.rule=Host(`web.localhost`)"
+      - "traefik.http.routers.web.entrypoints=websecure"
+      - "traefik.http.services.web.loadbalancer.server.scheme=https"
+      - "traefik.http.services.web.loadbalancer.server.port=443"
+      - "traefik.http.services.web.loadbalancer.serverstransport=insecure@file"
+    environment:
+      PORT: 443
+      HTTP_API_ENDPOINT: go_api.localhost
+      WEB_GRPC_ENDPOINT: go_grpc.localhost
   db:
     image: postgres
     restart: always

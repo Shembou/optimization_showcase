@@ -4,7 +4,7 @@ function WebSocketPage() {
     async function startTransport(e: FormEvent) {
         e.preventDefault();
         try {
-            const ws = new WebSocket("https://http2_api.localhost/ws");
+            const ws = new WebSocket("wss://go_api.localhost/v1/ws");
             console.log("initializing websocket transport");
             ws.onmessage = (msg) => console.log(msg.data);
             ws.onopen = () => ws.send("Hello Server!");

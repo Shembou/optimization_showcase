@@ -1,7 +1,9 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/gorilla/websocket"
@@ -10,6 +12,9 @@ import (
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
+	CheckOrigin: func(r *http.Request) bool {
+		return true
+	},
 }
 
 func (app *application) websocket(w http.ResponseWriter, r *http.Request) {
@@ -18,7 +23,31 @@ func (app *application) websocket(w http.ResponseWriter, r *http.Request) {
 		app.logger.Println("Failed to initialize websocket connection")
 		return
 	}
-	conn.
+	defer conn.Close()
+	for {
+		mt, message, err := conn.ReadMessage()
+		if err != nil {
+			app.logger.Println("read:", err)
+			break
+		}
+		app.logger.Printf("recv: %s", message)
+
+		users, err := app.models.Users.GetAll()
+		if err != nil {
+			app.logger.Println("Error while getting all users")
+		}
+
+		js, err := json.Marshal(users)
+		if err != nil {
+			app.logger.Println("Error while converting users to JSON")
+		}
+
+		err = conn.WriteMessage(mt, js)
+		if err != nil {
+			log.Println("write:", err)
+			break
+		}
+	}
 
 }
 
